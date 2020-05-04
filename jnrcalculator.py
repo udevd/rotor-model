@@ -56,7 +56,7 @@ class JNRCalculator:
     def draw_3d(self, i, j, k):
         xs=self.pts_coordinates(i)
         ys=self.pts_coordinates(j)
-        zs=self.pts_coordinates(j)
+        zs=self.pts_coordinates(k)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(xs,ys,zs)
