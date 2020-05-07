@@ -1,7 +1,7 @@
 import qutip
 import numpy as np
 
-from harmonicoscillatorbasis import OneDHarmonicOperators
+from .harmonicoscillatorbasis import OneDHarmonicOperators
 
 class SingleSiteOperators3D:
     def __init__(self, dim):

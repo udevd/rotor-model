@@ -1,12 +1,12 @@
 import qutip
 import numpy as np
 
-from singlesitebasis import EnergyRestrictedSingleSiteOperators3D, EnergyRestrictedSingleSiteOperators2D
+from .singlesitebasis import EnergyRestrictedSingleSiteOperators3D, EnergyRestrictedSingleSiteOperators2D
 
 
 class RotorChainOperators3D:
     def __init__(self, sites, en):
-        self.rotor=EnergyRestrictedSingleSiteOperators(en)
+        self.rotor=EnergyRestrictedSingleSiteOperators3D(en)
         self.sites=sites
         self.JJx=sum( self.onsites({k:self.rotor.Jx, (k+1)%sites: self.rotor.Jx})  for k in range(self.sites) )
         self.JJy=sum( self.onsites({k:self.rotor.Jy, (k+1)%sites: self.rotor.Jy})  for k in range(self.sites) )
@@ -25,7 +25,7 @@ class RotorChainOperators3D:
 
 class RotorChainOperators2D:
     def __init__(self, sites, en):
-        self.rotor=EnergyRestrictedSingleSiteOperators(en)
+        self.rotor=EnergyRestrictedSingleSiteOperators2D(en)
         self.sites=sites
         self.JJ=sum( self.onsites({k:self.rotor.JJ, (k+1)%sites: self.rotor.JJ})  for k in range(self.sites) )
         
