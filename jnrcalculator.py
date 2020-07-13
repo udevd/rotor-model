@@ -36,14 +36,13 @@ class GeneralJNRCalculator:
         bar = tqdm(total=npoints)
         processes=[]
         def update(result):
-            print(result)
-            self.data.append(result)
+            self.data.append(np.array(result))
             with open(self.filename,'wb') as handle:
                 pickle.dump(self, handle)
             bar.update()
         with Pool() as p:
             for normal in normals:
-                    r=p.apply_async(self.calculator,args=(normal,),callback=update)
+                    p.apply_async(self.calculator,args=(normal,),callback=update)
             p.close()
             p.join()
             
@@ -54,14 +53,12 @@ class GeneralJNRCalculator:
         bar = tqdm(total=npoints)
         processes=[]
         def update(result):
-            print(result)
-            self.data.append(result)
+            self.data.append(np.array(result))
             with open(self.filename,'wb') as handle:
                 pickle.dump(self, handle)
             bar.update()
         for normal in normals:
-            r=self.calculator(normal)
-            update(r)
+            update(self.calculator(normal))
 
     def pts_coordinates(self, i):
         return [p[i].real for (n,p) in self.data]
@@ -76,6 +73,8 @@ class GeneralJNRCalculator:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(xs,ys,zs)
+    def dump_csv(self,filename): # each line contains normal and points concatenated to 2dim vector
+        np.savetxt(filename,np.array(self.data).reshape(-1,2*self.jnr_dim))
 
 
 class JNRCalculator(GeneralJNRCalculator):

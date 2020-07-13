@@ -30,7 +30,6 @@ class MGChain(MultiCouplingModel,  MPOModel):
     def calculate_ground_state(self):
         self.dmrg_retval=tenpy.algorithms.dmrg.run(self.psi,self,self.options)
     def calculate_expvals(self):
-        print('calculating')
         if self.dmrg_retval is None:
             self.calculate_ground_state()
         ESn=sum(self.psi.expectation_value_multi_sites([oper,oper],i) for i,oper in product(range(self.L-1),['Sx','Sy','Sz']) )
