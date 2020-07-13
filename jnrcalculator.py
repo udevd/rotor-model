@@ -22,30 +22,46 @@ def _calculate_support_point(opers,normal,sparse=True): #it has to be like this 
     expvals=np.array([X.matrix_element(vector,vector).real for X in opers])
     return (normal,expvals)
 
-class JNRCalculator:
-    def __init__(self, opers, filename, sparse=True):
-        self.opers=opers
+
+class GeneralJNRCalculator:
+    def __init__(self, calculator,jnr_dim, filename):
+        self.calculator=calculator
         self.filename=filename
-        self.jnr_dim=len(self.opers)
+        self.jnr_dim=jnr_dim
         self.data=[]
-        self.sparse=sparse
-    def support_point(self, normal):
-        return _calculate_support_point(self.opers, normal)
+
     def process_random_points(self, npoints):
         normals = np.random.randn(npoints, self.jnr_dim)
         normals /= np.linalg.norm(normals, axis=0)
         bar = tqdm(total=npoints)
         processes=[]
         def update(result):
+            print(result)
             self.data.append(result)
             with open(self.filename,'wb') as handle:
                 pickle.dump(self, handle)
             bar.update()
         with Pool() as p:
             for normal in normals:
-                    r=p.apply_async(_calculate_support_point,args=(self.opers,normal,),callback=update)
+                    r=p.apply_async(self.calculator,args=(normal,),callback=update)
             p.close()
             p.join()
+            
+    
+    def process_random_points_sync(self, npoints):
+        normals = np.random.randn(npoints, self.jnr_dim)
+        normals /= np.linalg.norm(normals, axis=0)
+        bar = tqdm(total=npoints)
+        processes=[]
+        def update(result):
+            print(result)
+            self.data.append(result)
+            with open(self.filename,'wb') as handle:
+                pickle.dump(self, handle)
+            bar.update()
+        for normal in normals:
+            r=self.calculator(normal)
+            update(r)
 
     def pts_coordinates(self, i):
         return [p[i].real for (n,p) in self.data]
@@ -60,3 +76,13 @@ class JNRCalculator:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(xs,ys,zs)
+
+
+class JNRCalculator(GeneralJNRCalculator):
+    def __init__(self, opers, filename, sparse=True):
+        def calculator(normal):
+            return _calculate_support_point(opers,normal,sparse=sparse)
+        super().__init__(calculator, len(self.opers),filename)
+        self.opers=opers
+        self.sparse=sparse
+
