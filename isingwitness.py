@@ -7,7 +7,7 @@ from itertools import product
 import numpy as np
 import tenpy.algorithms
 class IsingWitnessChain(MultiCouplingModel,  MPOModel):
-    def __init__(self, L=10, Jxx=1, Jyy=1, Y=0, hz=0, options={}):
+    def __init__(self, L=10, J=1, gamma=1, Y=0, hz=0, options={}):
         # use predefined local Hilbert space and onsite operators
         site = SpinSite(S=1/2, conserve=None)
         self.L=L
@@ -15,8 +15,8 @@ class IsingWitnessChain(MultiCouplingModel,  MPOModel):
         MultiCouplingModel.__init__(self, lat)
         # add terms of the Hamiltonian;
         # operators "Sx", "Sy", "Sz" are defined by the SpinSite
-        self.add_coupling(Jxx, 0, "Sx", 0, "Sx", 1)
-        self.add_coupling(Jyy, 0, "Sy", 0, "Sy", 1)
+        self.add_coupling(J+gamma, 0, "Sx", 0, "Sx", 1)
+        self.add_coupling(J-gamma, 0, "Sy", 0, "Sy", 1)
        
         self.add_multi_coupling(Y, [("Sx", -1, 0), ("Sz", 0, 0), ("Sy", 1, 0)] )
         self.add_multi_coupling(-Y, [("Sy", -1, 0), ("Sz", 0, 0), ("Sx", 1, 0)] )
@@ -40,4 +40,4 @@ class IsingWitnessChain(MultiCouplingModel,  MPOModel):
         EW=EW-sum(self.psi.expectation_value_multi_sites(['Sy','Sz','Sx'],i) for i in range(self.L-2) )
            
         ESz=sum(self.psi.expectation_value_multi_sites(['Sz'],i) for i in range(self.L))
-        return(ESxx,ESyy,EW)
+        return(ESxx+ESyy,ESxx-ESyy,EW)
